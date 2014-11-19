@@ -61,6 +61,8 @@ class Clause:
             val = other.arguments[i]
             if is_variable(var):
                 dic[var] = val
+            elif is_variable(val):
+                dic[val] = var
         return dic
 
     def unify_and_ret(self, theta):
@@ -165,10 +167,23 @@ class KnowledgeBase:
                 return True
         return False
 
+    def unify_simple(self, goal):
+        for simple in self.simples:
+            if goal.clause.does_unify(simple.clause):
+                theta = goal.clause.unify(simple.clause)
+                return theta
+        return None
 
     def fol_bc_or(self, goal, theta):
         for simple in self.simples:
-            if goal == simple or goal.does_unify(simple):
+            if goal == simple:
+                return theta
+            if goal.does_unify(simple):
+                theta1 = self.unify_simple(goal)
+                for var in theta1:
+                    if  var in theta and theta[var] != theta1[var]:
+                        return None
+                    theta[var] = theta1[var]
                 return theta
 
         tmp_theta, new_premises = self.find_implication(goal)
@@ -176,6 +191,7 @@ class KnowledgeBase:
             return None
 
         theta1 = self.fol_bc_and(new_premises, tmp_theta)
+
         return theta1
 
     def fol_bc_and(self, goals, theta):
@@ -185,7 +201,6 @@ class KnowledgeBase:
             return theta
         else:
             first, rest = goals[0], goals[1:]
-
             theta1 = self.fol_bc_or(first, theta)
             if theta1:
                 theta2 = self.fol_bc_and(rest, theta1)
