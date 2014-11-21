@@ -26,7 +26,9 @@ def read_input(file):
     goal = SimpleExpression()
     goal.add_clause(clause)
 
-    for line in lines[2:]:
+    num_lines = int(lines[1].strip())
+
+    for line in lines[2 : 2 + num_lines]:
         sentence_count += 1
         line = line.strip()
         implication_found = False
@@ -54,7 +56,7 @@ def read_input(file):
             lhs_clauses.append(construct_clause(lhs, sentence_count))
 
         rhs_clause = None
-        if rhs:
+        if rhs is not None:
             rhs_clause = construct_clause(rhs, sentence_count)
 
         if implication_found:
@@ -84,8 +86,11 @@ if __name__ == "__main__":
 
         answers = KB.fol_bc_or(goal, {})
 
-        if answers:
+        print "answers",answers
+        if answers is not None:
             output = "TRUE"
+
+        print output
 
     except Exception, e:
         import sys, traceback

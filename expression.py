@@ -191,17 +191,18 @@ class KnowledgeBase:
             return None
 
         theta1 = self.fol_bc_and(new_premises, tmp_theta)
-
         return theta1
 
     def fol_bc_and(self, goals, theta):
         if theta is None:
-            pass
+            return None
         elif not goals:
             return theta
         else:
             first, rest = goals[0], goals[1:]
             theta1 = self.fol_bc_or(first, theta)
-            if theta1:
+            if theta1 is not None:
                 theta2 = self.fol_bc_and(rest, theta1)
                 return theta2
+            else:
+                return None
